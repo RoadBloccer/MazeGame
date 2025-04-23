@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.Win32;
 using System;
+using System.Collections.Generic;
 
 namespace MazeGame;
-
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
@@ -22,7 +23,6 @@ public class Game1 : Game
     private float rotationSpeed = 0.05f;
 
     // Maze grid (1 = wall, 0 = empty space)
-
     //insert maze generator here instead of... 
     private int[,] maze = new int[,]
     {
@@ -154,3 +154,66 @@ public class Game1 : Game
         }
     }
 }
+class MazeGenerator
+{
+    private static int width;
+    private static int height;
+    private static int[,] maze;
+    private static Random rand = new Random();
+
+    public static void Main(string[] args)
+    {
+        width = 21; // Must be odd
+        height = 21; // Must be odd
+        maze = new int[width, height];
+
+        GenerateMaze();
+    }
+
+    private static void GenerateMaze()
+    {
+        // Initialize the maze with walls
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                maze[x, y] = 0;
+            }
+        }
+
+        // Start the maze generation from the top-left corner
+        CarvePassage(1, 1);
+    }
+
+    private static void CarvePassage(int cx, int cy)
+    {
+        // Directions: up, right, down, left
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        // Randomize directions
+        List<int> directions = new List<int> { 0, 1, 2, 3 };
+        for (int i = 0; i < directions.Count; i++)
+        {
+            int temp = directions[i];
+            int randomIndex = rand.Next(i, directions.Count);
+            directions[i] = directions[randomIndex];
+            directions[randomIndex] = temp;
+        }
+
+        // Carve passages
+        foreach (int direction in directions)
+        {
+            int nx = cx + dx[direction] * 2;
+            int ny = cy + dy[direction] * 2;
+
+            if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && maze[nx, ny] == 0)
+            {
+                maze[cx + dx[direction], cy + dy[direction]] = 1;
+                maze[nx, ny] = 1;
+                CarvePassage(nx, ny);
+            }
+        }
+    }
+}
+
