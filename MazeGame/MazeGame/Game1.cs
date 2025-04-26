@@ -19,7 +19,7 @@ public class Game1 : Game
     private Vector2 playerPosition = new Vector2(100, 100);
     private float playerAngle = 0f;
     private float fov = MathHelper.PiOver4; // Field of View (45 degrees)
-    private float moveSpeed = 2f;
+    private int moveSpeed = 1;
     private float rotationSpeed = 0.05f;
 
     // Maze grid (1 = wall, 0 = empty space)
@@ -62,9 +62,9 @@ public class Game1 : Game
 
         // Player rotation
         if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            playerAngle -= rotationSpeed;
+            playerAngle -= rotationSpeed / 2;
         if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            playerAngle += rotationSpeed;
+            playerAngle += rotationSpeed / 2;
 
         // Player movement
         Vector2 direction = new Vector2((float)Math.Cos(playerAngle), (float)Math.Sin(playerAngle));
@@ -78,7 +78,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
 
@@ -94,6 +94,8 @@ public class Game1 : Game
     {
         int numRays = screenWidth; // One ray per screen column
         float angleStep = fov / numRays;
+        Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
 
         for (int i = 0; i < numRays; i++)
         {
@@ -104,12 +106,8 @@ public class Game1 : Game
             float distanceToWall = CastSingleRay(rayAngle);
 
             // Calculate wall height based on distance
-            float wallHeight = screenHeight / (distanceToWall + 0.0001f); // Avoid division by zero
+            float wallHeight = screenHeight * 5 / (distanceToWall + 0.0001f); // Avoid division by zero
             wallHeight = MathHelper.Clamp(wallHeight, 0, screenHeight);
-
-            // Draw the wall slice
-            Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
-            pixel.SetData(new[] { Color.White });
 
             _spriteBatch.Draw(
                 pixel,
@@ -154,6 +152,7 @@ public class Game1 : Game
         }
     }
 }
+
 class MazeGenerator
 {
     private static int width;
