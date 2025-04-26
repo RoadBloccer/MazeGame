@@ -21,35 +21,24 @@ public class Game1 : Game
     private float fov = MathHelper.PiOver4; // Field of View (45 degrees)
     private int moveSpeed = 1;
     private float rotationSpeed = 0.05f;
+    private int cellSize = 35; //This determins how much space a cell (1 or 0) covers
 
-    // Maze grid (1 = wall, 0 = empty space)
-    //insert maze generator here instead of... 
-    //private int[,] maze = new int[,]
-    //{
-    //    { 1, 1, 1, 1, 1, 1 },
-    //    { 1, 0, 0, 0, 0, 1 },
-    //    { 1, 0, 1, 1, 0, 1 },
-    //    { 1, 0, 0, 0, 0, 1 },
-    //    { 1, 1, 1, 1, 1, 1 },
-    //};
-    //That ^^
-    private int cellSize = 35;
 
-    class MazeGenerator
+    class MazeGenerator //Maze Generator and integration kinda complete (mostly)
 {
-    private static int width = 5;
-    private static int height = 5;
+    private static int width;
+    private static int height;
     public static int[,] maze;
     private static Random rand = new Random();
 
     public static void Maze()
     {
-        width = 21; // Must be odd
-        height = 21; // Must be odd
+        width = 29; // Must be odd
+        height = 29; // Must be odd
         maze = new int[width, height];
 
-        GenerateMaze();
-    }
+        GenerateMaze();//Need to make it generate with a wall around it to begin with - so no gaps to the outside
+    } //Also need to make Maze generate an end point
 
     private static void GenerateMaze()
     {
@@ -98,7 +87,7 @@ public class Game1 : Game
     }
 }
 
-    public Game1()
+    public Game1()//Need to Add Winning Conditions to the game
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -116,6 +105,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        MazeGenerator.Maze();//This generates the maze at the start of each game DONT MOVE
     }
 
     protected override void Update(GameTime gameTime)
@@ -147,16 +137,12 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-    protected override void Draw(GameTime gameTime)
+    protected override void Draw(GameTime gameTime)//Maybe add a minimap? to help know where the player is???
     {
-        GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(Color.Black);//Also Could add a timer? make it more "beat maze asap" type game
 
         _spriteBatch.Begin();
-
-        // Draw the 3D walls
-        MazeGenerator.Maze();
         CastRays();
-
         _spriteBatch.End();
 
         base.Draw(gameTime);
@@ -184,7 +170,7 @@ public class Game1 : Game
             _spriteBatch.Draw(
                 pixel,
                 new Rectangle(i, (int)((screenHeight - wallHeight) / 2), 1, (int)wallHeight),
-                Color.Gray
+                Color.Gray//In terms of graphics I'm feeling a minimalist look, looks good
             );
         }
     }
