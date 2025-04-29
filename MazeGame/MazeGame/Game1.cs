@@ -225,13 +225,13 @@ public class WinConditions()
         int gridY = (int)(playerPosition.Y / Game1.cellSize);
         int gridX = (int)(playerPosition.X / Game1.cellSize);
 
-        if(MazeGenerator.maze[gridX, gridY] == 1)
+        if (gridX == lastcell[0] && gridY == lastcell[1])
         {
-            win = false;
+            win = true;  // You reached the goal!
         }
-        else if()
+        else if (MazeGenerator.maze[gridY, gridX] == 0)
         {
-            
+            win = false; // not on a wall
         }
 
     }
@@ -244,7 +244,7 @@ public class WinConditions()
     private static int height;
     public static int[,] maze;
     private static Random rand = new Random();
-    public static Point lastcell;
+    public static int[] lastcell = new int [2];
 
     public static void Maze()
     {
@@ -268,7 +268,8 @@ public class WinConditions()
 
         // Start the maze generation from the top-left corner
         maze [1,1] = 1;
-        lastcell = new Point(1, 1);
+        lastcell[0] = 1;
+        lastcell[1] = 1;
         CarvePassage(1, 1);
     }
 
@@ -299,7 +300,8 @@ public class WinConditions()
                 maze[cx + dx[direction], cy + dy[direction]] = 1;
                 maze[nx, ny] = 1;
 
-                lastcell = new Point(nx, ny);
+                lastcell[0] = nx; // X coordinate
+                lastcell[1] = ny;
                 CarvePassage(nx, ny);
             }
         }
