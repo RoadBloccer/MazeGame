@@ -11,9 +11,6 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private SpriteFont _font;
-    Vector2 fontPos;
-
     // Screen dimensions
     private int screenWidth = 800;
     private int screenHeight = 600;
@@ -44,8 +41,6 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        _font = Content.Load<SpriteFont>("MyFont");
 
         MazeGenerator.Maze();//This generates the maze at the start of each game DONT MOVE
     }
@@ -110,6 +105,14 @@ public class Game1 : Game
 
         // Collision Detection
         
+        if(WinConditions.win == 1)
+        {  
+            Exit();
+        }
+        else if(WinConditions.win == 2)
+        {
+            Exit();
+        }
 
         base.Update(gameTime);
     }
@@ -120,29 +123,6 @@ public class Game1 : Game
 
         _spriteBatch.Begin();
         CastRays();
-
-        if(WinConditions.win == true)
-        {  
-             // Draw Hello World
-             string output = "You Win!";
-
-             // Find the center of the string
-             Vector2 FontOrigin = _font.MeasureString(output) / 2;
-             // Draw the string
-             _spriteBatch.DrawString(_font, output, fontPos, Color.LightGreen,
-                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-        }
-        else if(WinConditions.win == false)
-        {
-              // Draw Hello World
-             string output = "You Lose!";
-
-             // Find the center of the string
-             Vector2 FontOrigin = _font.MeasureString(output) / 2;
-             // Draw the string
-             _spriteBatch.DrawString(_font, output, fontPos, Color.LightGreen,
-                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-        }
         _spriteBatch.End();
 
         base.Draw(gameTime);
@@ -214,7 +194,7 @@ public class Game1 : Game
 
 public class WinConditions()
 {
-    public static bool win;
+    public static int win = 0;
 
     public static void Checkwin()
     {
@@ -227,11 +207,11 @@ public class WinConditions()
 
         if (gridX == lastcell[0] && gridY == lastcell[1])
         {
-            win = true;  // You reached the goal!
+            win = 1;  // You reached the goal!
         }
-        else if (MazeGenerator.maze[gridY, gridX] == 0)
+        else if (MazeGenerator.maze[gridY, gridX] == 1)
         {
-            win = false; // not on a wall
+            win = 2; // not on a wall
         }
 
     }
