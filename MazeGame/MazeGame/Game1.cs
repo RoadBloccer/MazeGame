@@ -11,90 +11,20 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
+    private SpriteFont _font;
+    Vector2 fontPos;
+
     // Screen dimensions
     private int screenWidth = 800;
     private int screenHeight = 600;
 
     // Player variables
-    private Vector2 playerPosition = new Vector2(100, 100);
+    public static Vector2 playerPosition = new Vector2(100, 100);
     private float playerAngle = 0f;
     private float fov = MathHelper.PiOver4; // Field of View (45 degrees)
     private int moveSpeed = 1;
     private float rotationSpeed = 0.05f;
-    private int cellSize = 15; //This determins how much space a cell (1 or 0) covers
-
-
-    class MazeGenerator //Maze Generator and integration kinda complete (mostly)
-{
-    private static int width;
-    private static int height;
-    public static int[,] maze;
-    private static Random rand = new Random();
-    public static Point lastcell;
-
-    public static void Maze()
-    {
-        width = 29; // Must be odd
-        height = 29; // Must be odd
-        maze = new int[width, height];
-
-        GenerateMaze();//Need to make it generate with a wall around it to begin with - so no gaps to the outside
-    } //Also need to make Maze generate an end point
-
-    private static void GenerateMaze()
-    {
-        // Initialize the maze with walls
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                maze[x, y] = 0;
-            }
-        }
-
-        // Start the maze generation from the top-left corner
-        maze [1,1] = 1;
-        lastcell = new Point(1, 1);
-        CarvePassage(1, 1);
-    }
-
-    private static void CarvePassage(int cx, int cy)
-    {
-        // Directions: up, right, down, left
-        int[] dx = { 0, 1, 0, -1 };
-        int[] dy = { -1, 0, 1, 0 };
-
-        // Randomize directions
-        List<int> directions = new List<int> { 0, 1, 2, 3 };
-        for (int i = 0; i < directions.Count; i++)
-        {
-            int temp = directions[i];
-            int randomIndex = rand.Next(i, directions.Count);
-            directions[i] = directions[randomIndex];
-            directions[randomIndex] = temp;
-        }
-
-        // Carve passages
-        foreach (int direction in directions)
-        {
-            int nx = cx + dx[direction] * 2;
-            int ny = cy + dy[direction] * 2;
-
-            if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && maze[nx, ny] == 0)
-            {
-                maze[cx + dx[direction], cy + dy[direction]] = 1;
-                maze[nx, ny] = 1;
-
-                lastcell = new Point(nx, ny);
-                CarvePassage(nx, ny);
-            }
-        }
-    }
-    public static void Checkwin(int playerPosition);
-    {
-        if (playerPosition)
-    }
-}
+    public static int cellSize = 15; //This determins how much space a cell (1 or 0) covers
 
     public Game1()//Need to Add Winning Conditions to the game
     {
@@ -114,6 +44,9 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        _font = Content.Load<SpriteFont>("MyFont");
+
         MazeGenerator.Maze();//This generates the maze at the start of each game DONT MOVE
     }
 
@@ -154,7 +87,7 @@ public class Game1 : Game
                 else
                 {
                    moveSpeed = 0;  
-                   Checkwin();                  
+                   WinConditions.Checkwin();                  
                 }
             }
         }
@@ -169,7 +102,8 @@ public class Game1 : Game
                 }
                 else
                 {
-                   moveSpeed = 0;                    
+                   moveSpeed = 0;
+                   WinConditions.Checkwin();                    
                 }
             }           
         }
@@ -186,6 +120,29 @@ public class Game1 : Game
 
         _spriteBatch.Begin();
         CastRays();
+
+        if(WinConditions.win == true)
+        {  
+             // Draw Hello World
+             string output = "You Win!";
+
+             // Find the center of the string
+             Vector2 FontOrigin = _font.MeasureString(output) / 2;
+             // Draw the string
+             _spriteBatch.DrawString(_font, output, fontPos, Color.LightGreen,
+                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+        }
+        else if(WinConditions.win == false)
+        {
+              // Draw Hello World
+             string output = "You Lose!";
+
+             // Find the center of the string
+             Vector2 FontOrigin = _font.MeasureString(output) / 2;
+             // Draw the string
+             _spriteBatch.DrawString(_font, output, fontPos, Color.LightGreen,
+                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+        }
         _spriteBatch.End();
 
         base.Draw(gameTime);
@@ -253,5 +210,99 @@ public class Game1 : Game
         }
     }
     
+}
+
+public class WinConditions()
+{
+    public static bool win;
+
+    public static void Checkwin()
+    {
+        var lastcell = MazeGenerator.lastcell;
+
+        Vector2 playerPosition = Game1.playerPosition;
+
+        int gridY = (int)(playerPosition.Y / Game1.cellSize);
+        int gridX = (int)(playerPosition.X / Game1.cellSize);
+
+        if(MazeGenerator.maze[gridX, gridY] == 1)
+        {
+            win = false;
+        }
+        else if()
+        {
+            
+        }
+
+    }
+
+}
+
+  public class MazeGenerator //Maze Generator and integration kinda complete (mostly)
+{
+    private static int width;
+    private static int height;
+    public static int[,] maze;
+    private static Random rand = new Random();
+    public static Point lastcell;
+
+    public static void Maze()
+    {
+        width = 29; // Must be odd
+        height = 29; // Must be odd
+        maze = new int[width, height];
+
+        GenerateMaze();//Need to make it generate with a wall around it to begin with - so no gaps to the outside
+    } //Also need to make Maze generate an end point
+
+    private static void GenerateMaze()
+    {
+        // Initialize the maze with walls
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                maze[x, y] = 0;
+            }
+        }
+
+        // Start the maze generation from the top-left corner
+        maze [1,1] = 1;
+        lastcell = new Point(1, 1);
+        CarvePassage(1, 1);
+    }
+
+    private static void CarvePassage(int cx, int cy)
+    {
+        // Directions: up, right, down, left
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        // Randomize directions
+        List<int> directions = new List<int> { 0, 1, 2, 3 };
+        for (int i = 0; i < directions.Count; i++)
+        {
+            int temp = directions[i];
+            int randomIndex = rand.Next(i, directions.Count);
+            directions[i] = directions[randomIndex];
+            directions[randomIndex] = temp;
+        }
+
+        // Carve passages
+        foreach (int direction in directions)
+        {
+            int nx = cx + dx[direction] * 2;
+            int ny = cy + dy[direction] * 2;
+
+            if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && maze[nx, ny] == 0)
+            {
+                maze[cx + dx[direction], cy + dy[direction]] = 1;
+                maze[nx, ny] = 1;
+
+                lastcell = new Point(nx, ny);
+                CarvePassage(nx, ny);
+            }
+        }
+    }
 }
 
