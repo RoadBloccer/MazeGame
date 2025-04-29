@@ -21,71 +21,7 @@ public class Game1 : Game
     private float fov = MathHelper.PiOver4; // Field of View (45 degrees)
     private int moveSpeed = 1;
     private float rotationSpeed = 0.05f;
-    private int cellSize = 35; //This determins how much space a cell (1 or 0) covers
-
-
-    class MazeGenerator //Maze Generator and integration kinda complete (mostly)
-{
-    private static int width;
-    private static int height;
-    public static int[,] maze;
-    private static Random rand = new Random();
-
-    public static void Maze()
-    {
-        width = 29; // Must be odd
-        height = 29; // Must be odd
-        maze = new int[width, height];
-
-        GenerateMaze();//Need to make it generate with a wall around it to begin with - so no gaps to the outside
-    } //Also need to make Maze generate an end point
-
-    private static void GenerateMaze()
-    {
-        // Initialize the maze with walls
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                maze[x, y] = 0;
-            }
-        }
-
-        // Start the maze generation from the top-left corner
-        CarvePassage(1, 1);
-    }
-
-    private static void CarvePassage(int cx, int cy)
-    {
-        // Directions: up, right, down, left
-        int[] dx = { 0, 1, 0, -1 };
-        int[] dy = { -1, 0, 1, 0 };
-
-        // Randomize directions
-        List<int> directions = new List<int> { 0, 1, 2, 3 };
-        for (int i = 0; i < directions.Count; i++)
-        {
-            int temp = directions[i];
-            int randomIndex = rand.Next(i, directions.Count);
-            directions[i] = directions[randomIndex];
-            directions[randomIndex] = temp;
-        }
-
-        // Carve passages
-        foreach (int direction in directions)
-        {
-            int nx = cx + dx[direction] * 2;
-            int ny = cy + dy[direction] * 2;
-
-            if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && maze[nx, ny] == 0)
-            {
-                maze[cx + dx[direction], cy + dy[direction]] = 1;
-                maze[nx, ny] = 1;
-                CarvePassage(nx, ny);
-            }
-        }
-    }
-}
+    private int cellSize = 15; //This determins how much space a cell (1 or 0) covers
 
     public Game1()//Need to Add Winning Conditions to the game
     {
@@ -167,11 +103,7 @@ public class Game1 : Game
             float wallHeight = screenHeight * 5 / (distanceToWall + 0.0001f); // Avoid division by zero
             wallHeight = MathHelper.Clamp(wallHeight, 0, screenHeight);
 
-            _spriteBatch.Draw(
-                pixel,
-                new Rectangle(i, (int)((screenHeight - wallHeight) / 2), 1, (int)wallHeight),
-                Color.Gray//In terms of graphics I'm feeling a minimalist look, looks good
-            );
+            _spriteBatch.Draw(pixel ,new Rectangle(i, (int)((screenHeight - wallHeight) / 2), 1, (int)wallHeight) ,Color.Blue);
         }
     }
 
@@ -211,3 +143,66 @@ public class Game1 : Game
     }
 }
 
+    class MazeGenerator //Maze Generator and integration kinda complete (mostly)
+{
+    private static int width;
+    private static int height;
+    public static int[,] maze;
+    private static Random rand = new Random();
+
+    public static void Maze()
+    {
+        width = 29; // Must be odd
+        height = 29; // Must be odd
+        maze = new int[width, height];
+
+        GenerateMaze();//Need to make it generate with a wall around it to begin with - so no gaps to the outside
+    } //Also need to make Maze generate an end point
+
+    private static void GenerateMaze()
+    {
+        // Initialize the maze with walls
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                maze[x, y] = 0;
+            }
+        }
+
+        // Start the maze generation from the top-left corner
+        CarvePassage(1, 1);
+        
+    }
+
+    private static void CarvePassage(int cx, int cy)
+    {
+        // Directions: up, right, down, left
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        // Randomize directions
+        List<int> directions = new List<int> { 0, 1, 2, 3 };
+        for (int i = 0; i < directions.Count; i++)
+        {
+            int temp = directions[i];
+            int randomIndex = rand.Next(i, directions.Count);
+            directions[i] = directions[randomIndex];
+            directions[randomIndex] = temp;
+        }
+
+        // Carve passages
+        foreach (int direction in directions)
+        {
+            int nx = cx + dx[direction] * 2;
+            int ny = cy + dy[direction] * 2;
+
+            if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && maze[nx, ny] == 0)
+            {
+                maze[cx + dx[direction], cy + dy[direction]] = 1;
+                maze[nx, ny] = 1;
+                CarvePassage(nx, ny);
+            }
+        }
+    }
+}
