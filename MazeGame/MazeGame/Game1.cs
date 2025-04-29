@@ -21,7 +21,7 @@ public class Game1 : Game
     private float fov = MathHelper.PiOver4; // Field of View (45 degrees)
     private int moveSpeed = 1;
     private float rotationSpeed = 0.05f;
-    private int cellSize = 35; //This determins how much space a cell (1 or 0) covers
+    private int cellSize = 15; //This determins how much space a cell (1 or 0) covers
 
 
     class MazeGenerator //Maze Generator and integration kinda complete (mostly)
@@ -30,6 +30,7 @@ public class Game1 : Game
     private static int height;
     public static int[,] maze;
     private static Random rand = new Random();
+    public static Point lastcell;
 
     public static void Maze()
     {
@@ -52,6 +53,8 @@ public class Game1 : Game
         }
 
         // Start the maze generation from the top-left corner
+        maze [1,1] = 1;
+        lastcell = new Point(1, 1);
         CarvePassage(1, 1);
     }
 
@@ -81,9 +84,15 @@ public class Game1 : Game
             {
                 maze[cx + dx[direction], cy + dy[direction]] = 1;
                 maze[nx, ny] = 1;
+
+                lastcell = new Point(nx, ny);
                 CarvePassage(nx, ny);
             }
         }
+    }
+    public static void Checkwin(int playerPosition);
+    {
+        if (playerPosition)
     }
 }
 
@@ -125,14 +134,48 @@ public class Game1 : Game
 
         // Player movement
         Vector2 direction = new Vector2((float)Math.Cos(playerAngle), (float)Math.Sin(playerAngle));
-        if (Keyboard.GetState().IsKeyDown(Keys.Up))
+        Vector2 newPosition = playerPosition;        
+
+        KeyboardState keyState = Keyboard.GetState();
+        int gridY = (int)(playerPosition.Y / cellSize);
+        int gridX = (int)(playerPosition.X / cellSize);
+
+        
+        if (keyState.IsKeyDown(Keys.Up))
         {
-            playerPosition += direction * moveSpeed;
+            
+            if (gridX >= 0 && gridX < MazeGenerator.maze.GetLength(1) &&
+                gridY >= 0 && gridY < MazeGenerator.maze.GetLength(0))
+            {
+                if (MazeGenerator.maze[gridY, gridX] == 0)
+                {
+                    playerPosition += new Vector2((float)Math.Cos(playerAngle), (float)Math.Sin(playerAngle)) * moveSpeed;
+                }
+                else
+                {
+                   moveSpeed = 0;  
+                   Checkwin();                  
+                }
+            }
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Down))
+        if (keyState.IsKeyDown(Keys.Down))
         {
-            playerPosition -= direction * moveSpeed;
+            if (gridX >= 0 && gridX < MazeGenerator.maze.GetLength(1) &&
+                gridY >= 0 && gridY < MazeGenerator.maze.GetLength(0))
+            {
+                if (MazeGenerator.maze[gridY, gridX] == 0)
+                {
+                    playerPosition += new Vector2((float)Math.Cos(playerAngle), (float)Math.Sin(playerAngle)) * moveSpeed;
+                }
+                else
+                {
+                   moveSpeed = 0;                    
+                }
+            }           
         }
+
+        // Collision Detection
+        
 
         base.Update(gameTime);
     }
@@ -209,5 +252,6 @@ public class Game1 : Game
             rayPos += rayDirection * 1f; // Step size
         }
     }
+    
 }
 
